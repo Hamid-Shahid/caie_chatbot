@@ -179,13 +179,13 @@ if search_button and query:
                     
                     cols = st.columns([1,4])
                     with cols[0]:
-                        st.markdown(f"**Year: ** {meta['year']}")
-                        st.markdown(f"**Month: **{meta['months']}")
-                        st.markdown(f"**Variant: ** {meta['variant']}")
-                        st.markdown(f"**Question #: ** {meta['questionNumber']}")
+                        st.markdown(f"Year:  {meta['year']}")
+                        st.markdown(f"Month: {meta['months']}")
+                        st.markdown(f"Variant: {meta['variant']}")
+                        st.markdown(f"Question #: {meta['questionNumber']}")
                     
                     with cols[1]:
-                        st.markdown(f"**Statement:** {meta['questionStatement']}")
+                        st.markdown(f"Statement: {meta['questionStatement']}")
                         
                         if meta.get('image'):
                             if isinstance(meta['image'],str) and meta['image'] not in ['', 'urlOfImage']:
@@ -198,7 +198,7 @@ if search_button and query:
                                         display_image(img)
                             
                         if meta.get('options') and isinstance(meta['options'], list):
-                            st.markdown("**Options:**")
+                            st.markdown("Options :")
                             for opt in meta['options']:
                                 if "https" in opt:
                                     display_image(opt)
