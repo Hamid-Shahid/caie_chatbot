@@ -23,11 +23,11 @@ class QueryProcessor:
         
         prompt = f"""
         Analyze the query and STRICTLY extract ONLY EXPLICITLY MENTIONED filters:
-        - questionNumber: extract as string if specifically numbered
-        - variant: extract as string if version/variant specified
-        - subjectCode: 4-digit code as string (e.g., "5054")
-        - year
-        - month
+        - questionNumber: extract as string if specifically numbered,
+        - variant: extract as string if version/variant specified,
+        - subjectCode: 4-digit code as string (e.g., "5054"),
+        - year,
+        - months
         
         If a filter is not explicitly mentioned, OMIT IT COMPLETELY from JSON.
         
@@ -41,7 +41,7 @@ class QueryProcessor:
                 "variant": "version or omit",
                 "subjectCode": "4-digit code or omit",
                 "year":"it could be year like 2019,2020,2021 etc if user provide only last 2 digits or say recent year then you must convert that query to full year like 19 is equals to 2019 and recent means present year - 2",
-                "month": month provided by user if user provide short form of month like Nov Cconvert it into full form like November. if user provide multiple months take only one
+                "months": month provided in query like June, November etc if user provide short form of month like Nov Cconvert it into full form like November. if user provide multiple months take only one
             }},
             "search_text": "full original query"
         }}
@@ -71,10 +71,9 @@ class QueryProcessor:
             
             # Extract JSON from markdown code block
             json_str = response.text.split('```json')[1].split('```')[0].strip()
-            # print("Parsed JSON:", json_str)
             
             parsed_filters = json.loads(json_str)
-    
+            print(parsed_filters)
             # Format filters for Pinecone compatibility
             return {
                 "filters": {
