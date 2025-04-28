@@ -180,6 +180,7 @@ if search_button and query:
                     cols = st.columns([1,4])
                     with cols[0]:
                         st.markdown(f"**Year:** {meta['year']}")
+                        st.markdown(f"**Month:**{meta['months']}")
                         st.markdown(f"**Variant:** {meta['variant']}")
                         st.markdown(f"**Question #:** {meta['questionNumber']}")
                     
