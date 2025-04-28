@@ -26,6 +26,8 @@ class QueryProcessor:
         - questionNumber: extract as string if specifically numbered
         - variant: extract as string if version/variant specified
         - subjectCode: 4-digit code as string (e.g., "5054")
+        - year
+        - month
         
         If a filter is not explicitly mentioned, OMIT IT COMPLETELY from JSON.
         
@@ -38,7 +40,8 @@ class QueryProcessor:
                 "questionNumber": "number or omit",
                 "variant": "version or omit",
                 "subjectCode": "4-digit code or omit",
-                "year":"it could be year like 2019,2020,2021 etc if user provide only last 2 digits or say recent year then you must convert that query to full year like 19 is equals to 2019 and recent means present year - 2"
+                "year":"it could be year like 2019,2020,2021 etc if user provide only last 2 digits or say recent year then you must convert that query to full year like 19 is equals to 2019 and recent means present year - 2",
+                "month": month provided by user if user provide short form of month like Nov Cconvert it into full form like November. if user provide multiple months take only one
             }},
             "search_text": "full original query"
         }}

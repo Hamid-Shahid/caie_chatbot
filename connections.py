@@ -47,12 +47,14 @@ def process_questions(data):
             """,
             task_type="retrieval_document"
         )['embedding']
-        
+        months_part, year = data['year'].split()
+        months = months_part.split('/')
         metadata = {
             "exam": data["exam"],
             "subjectCode": data["subjectCode"],
             "variant": data["variant"],
-            "year": re.split(r'[/ ]',data["year"]),
+            "year": year,
+            "months":months,
             "subject": data["subject"],
             "paper": data["paper"],
             "questionNumber": q["questionNumber"],
@@ -81,8 +83,8 @@ def load_json_with_encoding(filepath):
     raise ValueError(f"Could not decode {filepath} with any supported encoding")
 
 
-directory = r"F:\FYP\Current\o-level-physics-5054-20241117T145438Z-001\jsonFormat"
-# Get all files in the directory and filter JSON files
+# directory = r"F:\FYP\Current\o-level-physics-5054-20241117T145438Z-001\jsonFormat"
+# # Get all files in the directory and filter JSON files
 # file_paths = [
 #     os.path.join(directory, file)
 #     for file in os.listdir(directory)
