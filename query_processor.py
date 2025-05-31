@@ -73,7 +73,7 @@ class QueryProcessor:
             json_str = response.text.split('```json')[1].split('```')[0].strip()
             
             parsed_filters = json.loads(json_str)
-            print(parsed_filters)
+            # print(parsed_filters)
             # Format filters for Pinecone compatibility
             return {
                 "filters": {
@@ -87,10 +87,11 @@ class QueryProcessor:
 
 
 
-    def search_questions(self, query: str, top_k=10) -> list:
+    def search_questions(self, query: str, top_k=10, relevance_threshold=0.5) -> list:
         """Search Pinecone with query filters and semantic search"""
         parsed = self.parse_query(query)
-        # print(parsed)
+        filters = parsed.get("filters", {})
+        # print("Filters:", filters)
         
         # Generate search embedding
         search_embed = genai.embed_content(
@@ -98,18 +99,55 @@ class QueryProcessor:
             content=parsed.get("search_text", ""),
             task_type="retrieval_query"
         )["embedding"]
-        # print(50*"*")
-        # print(search_embed)
-        # print(50*"*")
-        # Query Pinecone
-        return self.index.query(
-            vector=search_embed,
-            filter=parsed.get("filters", {}),
-            top_k=top_k,
-            include_metadata=True,
-            hybrid=True,  
-            alpha=0.5     
-        )["matches"]
+        
+        # If filters are present, use simple top_k approach
+        if filters:
+            return self.index.query(
+                vector=search_embed,
+                filter=filters,
+                top_k=top_k,
+                include_metadata=True,
+                hybrid=True,
+                alpha=0.5
+            )["matches"]
+        
+        # If no filters, use batch approach with relevance threshold
+        else:
+            # Start with a reasonable batch size
+            batch_size = 5
+            all_matches = []
+            last_score = 1.0  # Start with perfect score
+            
+            while last_score >= relevance_threshold:
+                # Query Pinecone with current batch
+                results = self.index.query(
+                    vector=search_embed,
+                    filter=filters,  # No filters
+                    top_k=batch_size,
+                    include_metadata=True,
+                    hybrid=True,
+                    alpha=0.5
+                )["matches"]
+                
+                if not results:  # No more results
+                    break
+                    
+                # Get the last score in this batch
+                last_score = results[-1].score
+                
+                # Add results to our collection
+                all_matches.extend(results)
+                
+                # If we got fewer results than requested, we're done
+                if len(results) < batch_size:
+                    break
+                    
+                # Increase batch size for next iteration
+                batch_size *= 2
+            
+            # Filter out results below threshold and limit to top_k
+            filtered_matches = [match for match in all_matches if match.score >= relevance_threshold]
+            return filtered_matches[:50]
 
 
 
