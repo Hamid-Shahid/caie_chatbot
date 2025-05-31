@@ -6,10 +6,11 @@ from google.generativeai import GenerativeModel
 from pinecone import Index
 
 class QueryProcessor:
-    def __init__(self,index:Index):
+    def __init__(self, physics_index: Index, chemistry_index: Index):
         # Load environment variables first
-        self.index = index
-        load_dotenv()  # Add this line
+        self.physics_index = physics_index
+        self.chemistry_index = chemistry_index
+        load_dotenv()
         
         # Configure with explicit error handling
         api_key = os.getenv("GOOGLE_API_KEY")
@@ -17,6 +18,36 @@ class QueryProcessor:
             raise ValueError("GOOGLE_API_KEY not found in environment variables")
             
         genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
+
+    def classify_subject(self, query: str) -> str:
+        """Determine if the query is about physics or chemistry"""
+        prompt = f"""
+        Analyze the following query and determine if it's about physics or chemistry.
+        Return ONLY one word: either "physics" or "chemistry".
+        
+        Query: "{query}"
+        
+        Consider:
+        1. Subject-specific terminology
+        2. Topic areas (e.g., mechanics, electricity for physics; reactions, elements for chemistry)
+        3. Context clues
+        
+        If the query could be about either subject or is unclear, return "physics" as default.
+        """
+        
+        try:
+            response = self.model.generate_content(prompt)
+            subject = response.text.strip().lower()
+            return subject if subject in ["physics", "chemistry"] else "physics"
+        except Exception as e:
+            print(f"Error classifying subject: {str(e)}")
+            return "physics"  # Default to physics on error
+
+    def get_appropriate_index(self, subject: str) -> Index:
+        """Return the appropriate index based on subject"""
+        return self.physics_index if subject == "physics" else self.chemistry_index
+
     def parse_query(self, query: str) -> dict:
         """Extract filters and search text using Gemini"""
         model = genai.GenerativeModel('gemini-1.5-flash')  # Updated model name
@@ -85,13 +116,14 @@ class QueryProcessor:
             print(f"Error parsing query: {str(e)}")
             return {"filters": {}, "search_text": query}
 
-
-
     def search_questions(self, query: str, top_k=10, relevance_threshold=0.5) -> list:
         """Search Pinecone with query filters and semantic search"""
+        # First classify the subject
+        subject = self.classify_subject(query)
+        index = self.get_appropriate_index(subject)
+        
         parsed = self.parse_query(query)
         filters = parsed.get("filters", {})
-        # print("Filters:", filters)
         
         # Generate search embedding
         search_embed = genai.embed_content(
@@ -102,7 +134,7 @@ class QueryProcessor:
         
         # If filters are present, use simple top_k approach
         if filters:
-            return self.index.query(
+            return index.query(
                 vector=search_embed,
                 filter=filters,
                 top_k=top_k,
@@ -120,7 +152,7 @@ class QueryProcessor:
             
             while last_score >= relevance_threshold:
                 # Query Pinecone with current batch
-                results = self.index.query(
+                results = index.query(
                     vector=search_embed,
                     filter=filters,  # No filters
                     top_k=batch_size,
@@ -148,8 +180,6 @@ class QueryProcessor:
             # Filter out results below threshold and limit to top_k
             filtered_matches = [match for match in all_matches if match.score >= relevance_threshold]
             return filtered_matches[:50]
-
-
 
 # quer_proc=QueryProcessor()
 # result=quer_proc.parse_query("give me question from year 2023")

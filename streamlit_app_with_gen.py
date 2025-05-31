@@ -21,9 +21,12 @@ def configure_gemini():
     return genai.GenerativeModel('gemini-1.5-flash')
 
 def initialize_pinecone():
-    """Initialize and return Pinecone index connection"""
+    """Initialize and return Pinecone index connections"""
     pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-    return pc.Index("o-level-physics-paper-1")
+    return {
+        "physics": pc.Index("o-level-physics-paper-1"),
+        "chemistry": pc.Index("o-level-chemistry-paper-1")
+    }
 
 # Helper functions
 def display_image(image_url):
@@ -102,8 +105,11 @@ st.markdown("<h1 class='header'>📚 WISSEN</h1>", unsafe_allow_html=True)
 
 # Initialize services
 try:
-    index = initialize_pinecone()
-    query_processor = QueryProcessor(index)
+    indices = initialize_pinecone()
+    query_processor = QueryProcessor(
+        physics_index=indices["physics"],
+        chemistry_index=indices["chemistry"]
+    )
     gemini_model = configure_gemini()
 except Exception as e:
     st.error(f"Failed to initialize services: {str(e)}")
@@ -112,7 +118,7 @@ except Exception as e:
 # Sidebar configuration
 with st.sidebar:
     st.markdown("## About")
-    st.markdown("Search through O-Level Physics past paper questions using natural language queries.")
+    st.markdown("Search through O-Level past paper questions using natural language queries.")
     st.markdown("**Features:**")
     st.markdown("- Search by year, topic, or question content")
     st.markdown("- Generate new questions using AI")
@@ -130,6 +136,8 @@ with st.sidebar:
     st.markdown("- 'Questions about nuclear physics'")
     st.markdown("- '2023 magnetism problems'")
     st.markdown("- 'Mirror diagram questions'")
+    st.markdown("- 'Chemical reactions questions'")
+    st.markdown("- 'Atomic structure problems'")
 
 # Search form
 with st.form("search_form"):

@@ -13,7 +13,7 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Initialize Pinecone
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-index_name = "o-level-physics-paper-1"
+index_name = "o-level-chemistry-paper-1"
 
 # Create Pinecone index (updated for v6+)
 if index_name not in pc.list_indexes().names():
@@ -83,7 +83,7 @@ def load_json_with_encoding(filepath):
     raise ValueError(f"Could not decode {filepath} with any supported encoding")
 
 
-# directory = r"F:\FYP\Current\o-level-physics-5054-20241117T145438Z-001\jsonFormat"
+# directory = r"F:/FYP/Current/o-level-physics-5054-20241117T145438Z-001/jsonFormat/chem_json_format"
 # # Get all files in the directory and filter JSON files
 # file_paths = [
 #     os.path.join(directory, file)
