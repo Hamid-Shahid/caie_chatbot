@@ -147,7 +147,7 @@ with st.form("search_form"):
 
 # Handle search
 if search_button and query:
-    with st.spinner("Searching through physics questions..."):
+    with st.spinner("Searching ..."):
         try:
             results = query_processor.search_questions(query)
         except Exception as e:
