@@ -53,7 +53,7 @@ def display_image(image_url):
 def create_generation_prompt(results):
     """Create prompt for question generation based on search results"""
     examples = []
-    for match in results[:3]:
+    for match in results[:10]:
         meta = match.metadata
         example = f"Question: {meta['questionStatement']}\n"
         if meta.get('options') and 'https' not in meta.get('options')[0]:
@@ -65,7 +65,7 @@ def create_generation_prompt(results):
 {'\n\n'.join(examples)}
 
 Guidelines:
-1. Generate 2-3 new questions
+1. generate 10 questions
 2. Follow O-Level standards
 3. No images or links
 4. Include multiple-choice options when applicable
@@ -91,12 +91,6 @@ st.markdown("""
         border-bottom: 1px solid #e0e0e0;
     }
     .header {color: #2b5876;}
-    .generated-content {
-        background: #fff7e6;
-        padding: 20px;
-        border-radius: 10px;
-        margin-top: 20px;
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -165,14 +159,21 @@ if search_button and query:
                     
                     if response.text:
                         st.markdown("## 🚀 Generated Questions")
-                        # st.markdown("""
-                        #     <div class="generated-content">
-                        #     *AI-generated based on similar past questions*  
-                        #     *Note: Always verify generated content for accuracy*
-                        #     </div>
-                        #     """, unsafe_allow_html=True)
-                        st.divider()
-                        st.markdown(response.text)
+                        
+                        # Split the response into lines
+                        lines = response.text.split('\n')
+                        
+                        for line in lines:
+                            # Skip empty lines
+                            if not line.strip():
+                                continue
+                                
+                            # If the line starts with a number (question), make it bold
+                            if line.strip() and line.strip()[0].isdigit():
+                                st.divider()
+                                st.markdown(f"**{line}**")
+                            else:
+                                st.markdown(line)
                     else:
                         st.error("Failed to generate questions. Please try again.")
             except Exception as e:
