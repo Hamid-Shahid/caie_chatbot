@@ -44,7 +44,7 @@ class QueryProcessor:
             print(f"Error classifying subject: {str(e)}")
             return "physics"  # Default to physics on error
 
-    def get_appropriate_index(self, subject: str) -> Index:
+    def get_appropriate_index(self, subject: str):
         """Return the appropriate index based on subject"""
         return self.physics_index if subject == "physics" else self.chemistry_index
 
