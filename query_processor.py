@@ -6,7 +6,7 @@ from google.generativeai import GenerativeModel
 import pinecone
 
 class QueryProcessor:
-    def __init__(self, physics_index: pinecone.Index, chemistry_index: pinecone.Index):
+    def __init__(self, physics_index, chemistry_index):
         # Load environment variables first
         self.physics_index = physics_index
         self.chemistry_index = chemistry_index
