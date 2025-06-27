@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import GenerativeModel
 import pinecone
-pinecone.Index
 
 class QueryProcessor:
     def __init__(self, physics_index: pinecone.Index, chemistry_index: pinecone.Index):
