@@ -3,10 +3,11 @@ import json
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import GenerativeModel
-from pinecone import Index
+import pinecone
+pinecone.Index
 
 class QueryProcessor:
-    def __init__(self, physics_index: Index, chemistry_index: Index):
+    def __init__(self, physics_index: pinecone.Index, chemistry_index: pinecone.Index):
         # Load environment variables first
         self.physics_index = physics_index
         self.chemistry_index = chemistry_index
